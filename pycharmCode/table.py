@@ -86,7 +86,7 @@ def main():
 
         for i in range(len(res)):
             print(res[i]['symbol'])
-            result=getFunddata(res[i]['symbol'],1)
+            result=getFunddata(res[i]['symbol'],30)
             write_csv(res[i],result,i)
     except Exception as e:
         print('Error: ', e)
