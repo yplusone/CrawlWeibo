@@ -2,7 +2,7 @@ import csv
 import re
 import traceback
 import requests
-
+from lxml import etree
 import json
 
 def getFunddata(symbol,Maxpage):
@@ -55,6 +55,14 @@ def write_csv(res_dict,result,index):
     except Exception as e:
         print('Error: ', e)
         traceback.print_exc()
+def getGolds():
+    for i in range(2):
+        print(i)
+        url=u"http://vip.stock.finance.sina.com.cn/q/view/vGold_" \
+            "Matter_History.php?page=%s&pp=0&pz=0&start=1960-11-01&end=2019-12-27"%str(i+1)
+        html = requests.get(url).content.decode('GBK')
+        data = re.findall(u'\<tr\>.*?\<tr\>', str(html))
+        print(data)
 
 def getFunds():
     data=[]
@@ -82,12 +90,13 @@ def getFunds():
 
 def main():
     try:
-        res=getFunds()
-
-        for i in range(len(res)):
-            print(res[i]['symbol'])
-            result=getFunddata(res[i]['symbol'],30)
-            write_csv(res[i],result,i)
+        # res=getFunds()
+        #
+        # for i in range(len(res)):
+        #     print(res[i]['symbol'])
+        #     result=getFunddata(res[i]['symbol'],30)
+        #     write_csv(res[i],result,i)
+        getGolds()
     except Exception as e:
         print('Error: ', e)
         traceback.print_exc()
