@@ -9,6 +9,10 @@ import datetime
 import urllib.request as urllib2
 import io
 from urllib import request
+import pandas as pd
+import numpy as np
+import os
+import sys
 
 def getFunddata(symbol, Maxpage):
     urlhead = "http://stock.finance.sina.com.cn/fundInfo/api/openapi." \
@@ -84,19 +88,30 @@ def getFunds():
         res.append(eval(dd))
     return res
 
+def write_bug(fund,info):
+    file_dir = os.path.split(
+        os.path.realpath(__file__))[0] + os.sep
+    file_path = file_dir + 'log_table.txt'
+    content = u'基金=%s中信息：%s出现问题\n' % (fund,info)
+    print(content)
+    with open(file_path, 'ab') as f:
+        f.write(content.encode(sys.stdout.encoding))
+
 class Stockaa():
 
     def __init__(self):
         self.begin_date = datetime.date(2011, 6, 1)
-        self.end_date = datetime.date(2019, 12, 29)
+        self.end_date = datetime.date(2012, 12, 29)
         self.stockie = []
         self.flag=0
+        self.expected_data=None
 
     def crawl(self):
         for i in range((self.end_date - self.begin_date).days + 1):
             day = self.begin_date + datetime.timedelta(days=i)
             self.crawl_day(str(day))
-            self.write_csv(str(day))
+            self.check_day()
+            #self.write_csv(str(day))
             print("finish "+str(day))
             self.initialize()
 
@@ -151,6 +166,49 @@ class Stockaa():
         except Exception as e:
             print('Error: ', e)
             traceback.print_exc()
+    def check(self):
+        self.expected_data = pd.read_csv('./stock/table.csv')
+        self.crawl()
+
+    def check_day(self):
+        for row in self.stockie:
+            time=datetime.datetime.strptime(row[0], '%Y-%m-%d')
+            year = str(int(time.strftime('%Y')))
+            month = str(int(time.strftime('%m')))
+            day = str(int(time.strftime('%d')))
+            time=year + '/' + month + '/' + day
+            index=np.where(self.expected_data['日期']==time)[0]
+            id_index=-1
+            for i in index:
+                if int(self.expected_data['股票代码'][i])==int(row[2]):
+                    id_index=i
+                    break
+            if id_index!=-1:
+                if row[4]!='--' and float(row[4].replace(',',''))!=float(self.expected_data['融资-余额（元）'][id_index].replace(',','')):
+                    self.write_bug(row[3],time,'融资-余额（元）',self.expected_data['融资-余额（元）'][id_index],row[4])
+                if float(row[5].replace(',',''))!=float(self.expected_data['融资-买入额（元）'][id_index].replace(',','')):
+                    self.write_bug(row[3],time,'融资-买入额（元）',self.expected_data['融资-买入额（元）'][id_index],row[5])
+                if row[6]!='--' and float(row[6].replace(',',''))!=float(self.expected_data['融资-偿还额（元）'][id_index].replace(',','')):
+                    self.write_bug(row[3],time,'融资-偿还额（元）',self.expected_data['融资-偿还额（元）'][id_index],row[6])
+                if row[7]!='--' and float(row[7].replace(',',''))!=float(self.expected_data['融券-余量金额（元）'][id_index].replace(',','')):
+                    self.write_bug(row[3],time,'融券-余量金额（元）',self.expected_data['融券-余量金额（元）'][id_index],row[7])
+                if float(row[8].replace(',',''))!=float(self.expected_data['融券余量（股）'][id_index].replace(',','')):
+                    self.write_bug(row[3],time,'融券余量（股）',self.expected_data['融券余量（股）'][id_index],row[8])
+                if float(row[9].replace(',',''))!=float(self.expected_data['融券-卖出股（股）'][id_index].replace(',','')):
+                    self.write_bug(row[3],time,'融券-卖出股（股）',self.expected_data['融券-卖出股（股）'][id_index],row[9])
+                if row[10]!='--' and float(row[10].replace(',',''))!=float(self.expected_data['融券-偿还量（股）'][id_index].replace(',','')):
+                    self.write_bug(row[3],time,'融券-偿还量（股）',self.expected_data['融券-偿还量（股）'][id_index],row[10])
+                if row[11]!='--' and float(row[11].replace(',',''))!=float(self.expected_data['融券-融券金额（元）'][id_index].replace(',','')):
+                    self.write_bug(row[3],time,'融券-融券金额（元）',self.expected_data['融券-融券金额（元）'][id_index],row[11])
+
+    def write_bug(self,stockname,day,tag,origindata,nowdata):
+        file_dir = os.path.split(
+            os.path.realpath(__file__))[0] + os.sep
+        file_path = file_dir + './stock/log_table.txt'
+        content = u'股票%s在%s日的数据字段%s出现问题。原来数据为：%s，现在数据为：%s' % (stockname,day,tag,origindata,nowdata)
+        print(content)
+        with open(file_path, 'ab') as f:
+            f.write(content.encode(sys.stdout.encoding))
 
 class File():
 
@@ -175,7 +233,8 @@ class File():
                     url=u"http://finance.sina.com.cn/realstock/income_statement/%s/issued_pdate_ac_%s.html"%(day,str(page_index+1))
                     print(url)
                     self.crawl_one_page(url)
-                    self.write_csv()
+                    self.check_one_page()
+                    #self.write_csv()
                     self.initialize()
 
     def crawl_one_page(self,url):
@@ -225,9 +284,9 @@ class File():
                         child_text = child.get_text()
                         row_data.append(child_text)
                     child_count=child_count+1
-                print("here")
                 if len(row_data)!=12:   #最下面的页码一行不要
                     self.rows.append(row_data)
+                    return
 
     def getRemoteFileSize(self,url):
         try:
@@ -273,18 +332,81 @@ class File():
         except Exception as e:
             print('Error: ', e)
             traceback.print_exc()
+    def check(self):
+        self.expected_data = pd.read_csv('./stock/table2.csv')
+        self.crawl()
+
+    def check_one_page(self):
+        for row in self.rows:
+            index=np.where(self.expected_data['披露日期']==row[2])[0]
+            id_index=-1
+            for i in index:
+                if int(self.expected_data['股票代码'][i])==int(row[0]):
+                    id_index=i
+                    break
+            if id_index!=-1:
+                if row[3]!='--' and float(row[3])!=float(self.expected_data['每股收益（元）'][id_index]):
+                    self.write_bug(row[1],row[2],'每股收益（元）',self.expected_data['每股收益（元）'][id_index],row[3])
+                if row[4]!='--' and float(row[4])!=float(self.expected_data['营业收入（万元）'][id_index]):
+                    self.write_bug(row[1],row[2],'营业收入（万元）',self.expected_data['营业收入（万元）'][id_index],row[4])
+                if row[5]!='--' and float(row[5])!=float(self.expected_data['营业收入同比（%）'][id_index]):
+                    self.write_bug(row[1],row[2],'营业收入同比（%）',self.expected_data['营业收入同比（%）'][id_index],row[5])
+                if row[6]!='--' and float(row[6])!=float(self.expected_data['净利润（万元）'][id_index]):
+                    self.write_bug(row[1],row[2],'净利润（万元）',self.expected_data['净利润（万元）'][id_index],row[6])
+                if row[7]!='--' and float(row[7])!=float(self.expected_data['净利润同比（%）'][id_index]):
+                    self.write_bug(row[1],row[2],'净利润同比（%）',self.expected_data['净利润同比（%）'][id_index],row[7])
+                if row[8]!='--' and float(row[8])!=float(self.expected_data['每股净资产（元）'][id_index]):
+                    self.write_bug(row[1],row[2],'每股净资产（元）',self.expected_data['每股净资产（元）'][id_index],row[8])
+                if row[9]!='--' and float(row[9])!=float(self.expected_data['净资产收益率（%）'][id_index]):
+                    self.write_bug(row[1],row[2],'净资产收益率（%）',self.expected_data['净资产收益率（%）'][id_index],row[9])
+                if row[10]!='--' and float(row[10])!=float(self.expected_data['每股现金流（元）'][id_index]):
+                    self.write_bug(row[1],row[2],'每股现金流（元）',self.expected_data['每股现金流（元）'][id_index],row[10])
+                if row[11]!='--' and float(row[11])!=float(self.expected_data['毛利率（%）'][id_index]):
+                    self.write_bug(row[1],row[2],'毛利率（%）',self.expected_data['毛利率（%）'][id_index],row[11])
+                if row[12]!='--' and row[12]!=self.expected_data['分配方案'][id_index]:
+                    self.write_bug(row[1],row[2],'分配方案',self.expected_data['分配方案'][id_index],row[12])
+                if row[13]!='--' and row[13]!=self.expected_data['明细'][id_index]:
+                    self.write_bug(row[1],row[2],'明细',self.expected_data['明细'][id_index],row[13])
+                if row[14]!='--' and row[14]!=self.expected_data['PDF报告'][id_index]:
+                    self.write_bug(row[1],row[2],'PDF报告',self.expected_data['PDF报告'][id_index],row[14])
+                if row[15]!='null' and int(row[15])!=int(self.expected_data['文件大小'][id_index]):
+                    self.write_bug(row[1],row[2],'文件大小',self.expected_data['文件大小'][id_index],row[15])
+                if row[16]!='--' and row[16]!=self.expected_data['文件类型'][id_index]:
+                    self.write_bug(row[1],row[2],'文件类型',self.expected_data['文件类型'][id_index],row[16])
+                if row[17]!='--' and row[17]!=self.expected_data['文件最后修改时间'][id_index]:
+                    self.write_bug(row[1],row[2],'文件最后修改时间',self.expected_data['文件最后修改时间'][id_index],row[17])
+
+    def write_bug(self,stockname,day,tag,origindata,nowdata):
+        file_dir = os.path.split(
+            os.path.realpath(__file__))[0] + os.sep
+        file_path = file_dir + './stock/log_table2.txt'
+        content = u'股票%s在%s日的数据字段%s出现问题。原来数据为：%s，现在数据为：%s' % (stockname,day,tag,origindata,nowdata)
+        print(content)
+        with open(file_path, 'ab') as f:
+            f.write(content.encode(sys.stdout.encoding))
 def main():
     try:
+        # expected_data = pd.read_csv('./table.csv')
         # res=getFunds()
-        #
         # for i in range(len(res)):
         #     print(res[i]['symbol'])
-        #     result=getFunddata(res[i]['symbol'],30)
-        #     write_csv(res[i],result,i)
+        #     result=getFunddata(res[i]['symbol'],1)
+        #     index=np.where(expected_data['基金代码']==res[i]['symbol'])[0]
+        #     for r in result:
+        #         time=r['fbrq']
+        #         time_index=-1
+        #         for i in index:
+        #             if expected_data['日期'][i]==time:
+        #                 time_index=i
+        #         if time_index!=-1:
+        #             if r['jjjz']!=expected_data['单位净值'][time_index]:
+        #                 write_bug(expected_data['基金名称'][time_index],'单位净值')
+        #             if r['ljjz']!=expected_data['累计净值'][time_index]:
+        #                 write_bug(expected_data['基金名称'][time_index],'累计净值')
         # stock = Stockaa()
-        # stock.crawl()
+        # stock.check()
         file=File()
-        file.crawl()
+        file.check()
 
     except Exception as e:
         print('Error: ', e)
