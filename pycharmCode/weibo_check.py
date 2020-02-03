@@ -417,6 +417,7 @@ class Weibo():
                             checkweibo['content']=self.expected_data['微博正文'][index] == weibo['content']
                             if weibo['original_pictures']!='无':
                                 print("here\n")
+                            '''对于爬取到的信息进行验证'''
                             checkweibo['original_pictures'] = self.expected_data['原始图片'][index] == str(weibo['original_pictures'])
                             checkweibo['retweet_pictures'] = self.expected_data['被转发微博原始图片'][index] == str(weibo['retweet_pictures'])
                             checkweibo['original'] = self.expected_data['是否为原创微博'][index] == weibo['original']

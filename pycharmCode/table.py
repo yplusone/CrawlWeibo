@@ -9,11 +9,10 @@ import datetime
 import urllib.request as urllib2
 import io
 from urllib import request
+import time
+
 
 def getFunddata(symbol, Maxpage):
-    urlhead = "http://stock.finance.sina.com.cn/fundInfo/api/openapi." \
-              "php/CaihuiFundInfoService.getNav?callback=jQuery1112044331086053450575_" \
-              "1577193543101&symbol=000311&datefrom=&dateto=&page="
 
     data = []
 
@@ -22,7 +21,16 @@ def getFunddata(symbol, Maxpage):
         url = u"http://stock.finance.sina.com.cn/fundInfo/api/openapi." \
               "php/CaihuiFundInfoService.getNav?callback=jQuery1112044331086053450575_" \
               "1577193543101&symbol=%s&datefrom=&dateto=&page=%s&_=1577193543115" % (symbol, str(i + 1))
-        html = requests.get(url).content
+        while 1:
+            try:
+                html = requests.get(url).content
+                break
+            except:
+                print("Connection refused by the server..")
+                print("Let me sleep for 5 seconds")
+                print("ZZzzzz...")
+                time.sleep(5)
+                continue
         data = data + re.findall(u'\{"fbrq.*?"\}', str(html))
 
     result = []
@@ -48,7 +56,7 @@ def write_csv(res_dict, result, index):
             result[w]['name'] = res_dict['sname']
             res = [t for t in result[w].values()]
             result_data.append(res)
-        with open('./table.csv',
+        with open('./stock/基金历史信息.csv',
                   'a',
                   encoding='utf-8-sig',
                   newline='') as f:
@@ -62,26 +70,28 @@ def write_csv(res_dict, result, index):
         traceback.print_exc()
 
 def getFunds():
-    url = "http://vip.stock.finance.sina.com.cn/fund_center/data/jsonp.php/" \
-          "IO.XSRV2.CallbackList['6XxbX6h4CED0ATvW']/NetValue_Service.getNetVa" \
-          "lueOpen?page=1&num=40&sort=nav_date&asc=0&ccode=&type2=0&type3="
-    html = requests.get(url).content.decode('GBK')
-    data = re.findall(u'\{symbol.*?\}', str(html))
     res = []
-    for d in data:
-        dd = d.replace("symbol", "\"symbol\"")
-        dd = dd.replace("sname", "\"sname\"")
-        dd = dd.replace("per_nav", "\"per_nav\"")
-        dd = dd.replace("total_nav", "\"total_nav\"")
-        dd = dd.replace("yesterday_nav", "\"yesterday_nav\"")
-        dd = dd.replace("nav_rate", "\"nav_rate\"")
-        dd = dd.replace("nav_a", "\"nav_a\"")
-        dd = dd.replace("sg_states", "\"sg_states\"")
-        dd = dd.replace("nav_date", "\"nav_date\"")
-        dd = dd.replace("fund_manager", "\"fund_manager\"")
-        dd = dd.replace("jjlx", "\"jjlx\"")
-        dd = dd.replace("jjzfe", "\"jjzfe\"")
-        res.append(eval(dd))
+    for i in range(200):
+        url="http://vip.stock.finance.sina.com.cn/fund_center/data/jsonp.php/" \
+          "IO.XSRV2.CallbackList['6XxbX6h4CED0ATvW']/NetValue_Service.getNetVa" \
+          "lueOpen?page=%s&num=40&sort=nav_date&asc=0&ccode=&type2=0&type3="%str(i+1)
+        html = requests.get(url).content.decode('GBK')
+        data = re.findall(u'\{symbol.*?\}', str(html))
+        for d in data:
+            dd = d.replace("symbol", "\"symbol\"")
+            dd = dd.replace("sname", "\"sname\"")
+            dd = dd.replace("per_nav", "\"per_nav\"")
+            dd = dd.replace("total_nav", "\"total_nav\"")
+            dd = dd.replace("yesterday_nav", "\"yesterday_nav\"")
+            dd = dd.replace("nav_rate", "\"nav_rate\"")
+            dd = dd.replace("nav_a", "\"nav_a\"")
+            dd = dd.replace("sg_states", "\"sg_states\"")
+            dd = dd.replace("nav_date", "\"nav_date\"")
+            dd = dd.replace("fund_manager", "\"fund_manager\"")
+            dd = dd.replace("jjlx", "\"jjlx\"")
+            dd = dd.replace("jjzfe", "\"jjzfe\"")
+            res.append(eval(dd))
+    print(len(res))
     return res
 
 class Stockaa():
@@ -138,7 +148,7 @@ class Stockaa():
                 '融券-偿还量（股）',
                 '融券-融券金额（元）'
             ]
-            with open('./stock/table.csv',
+            with open('./stock/融资融券数据.csv',
                       'a',
                       encoding='utf-8-sig',
                       newline='') as f:
@@ -158,8 +168,8 @@ class File():
         self.rows=[]
         self.seasons=['-03-31','-06-30','-09-30','-12-31']
         self.year_begin=2014
-        self.year_end=2014
-        self.max_page_num=1
+        self.year_end=2019
+        self.max_page_num=10
         self.flag=0
 
     def initialize(self):
@@ -179,12 +189,22 @@ class File():
                     self.initialize()
 
     def crawl_one_page(self,url):
-        html = requests.get(url).content.decode('GBK')
+        while 1:
+            try:
+                html = requests.get(url).content.decode('GBK')
+                break
+            except:
+                print("Connection refused by the server..")
+                print("Let me sleep for 5 seconds")
+                print("ZZzzzz...")
+                time.sleep(5)
+                continue
         soup = BeautifulSoup(str(html), "html.parser")
         data = soup.find_all('tr')
         count = 0
         for tr in data:
             count = count + 1
+            print(count)
             if count > 3:
                 tr_child = tr.find_all('td')
                 row_data = []
@@ -204,6 +224,7 @@ class File():
                                 row_data.append('null')
                     elif child_count == 14:
                         for a_child in child:
+                            '''爬取公告文件元数据'''
                             try:
                                 row_data.append(a_child['href'])
                                 file_url=str(a_child['href'])
@@ -225,7 +246,6 @@ class File():
                         child_text = child.get_text()
                         row_data.append(child_text)
                     child_count=child_count+1
-                print("here")
                 if len(row_data)!=12:   #最下面的页码一行不要
                     self.rows.append(row_data)
 
@@ -260,7 +280,7 @@ class File():
                 '文件类型',
                 '文件最后修改时间'
             ]
-            with open('./stock/table2.csv',
+            with open('./stock/上市公司业绩公告3.csv',
                       'a',
                       encoding='utf-8-sig',
                       newline='') as f:
@@ -275,14 +295,19 @@ class File():
             traceback.print_exc()
 def main():
     try:
+        '''爬取基金历史信息'''
         # res=getFunds()
         #
         # for i in range(len(res)):
         #     print(res[i]['symbol'])
         #     result=getFunddata(res[i]['symbol'],30)
         #     write_csv(res[i],result,i)
+
+        '''爬取融资融券数据'''
         # stock = Stockaa()
         # stock.crawl()
+
+        '''爬取上市公司业绩公告'''
         file=File()
         file.crawl()
 

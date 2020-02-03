@@ -2,17 +2,20 @@
 
 ## 提交物说明
 
-| 文件           | 说明                                                 |
-| -------------- | ---------------------------------------------------- |
-| weibo_crawl.py | 爬取微博数据的爬虫代码文件                           |
-| weibo_check.py | 爬取并验证微博数据的代码文件                         |
-| table.py       | 爬取新浪财经表格数据的爬虫文件                       |
-| table_check.py | 爬取并验证新浪财经表格数据的代码文件                 |
-| weibo          | 此文件夹中存储爬取的微博数据，子文件分别对应某个用户 |
-| table.csv      | 此文件中存储爬取的新浪财经表格数据                   |
-| weibo_log.txt  | 此文件存储验证微博数据时产生的错误信息               |
-| table_log.txt  | 此文件存储验证新浪财经表格数据时产生的错误信息       |
-|                |                                                      |
+| 文件                          | 说明                                                         |
+| ----------------------------- | ------------------------------------------------------------ |
+| weibo_crawl.py                | 爬取微博数据的爬虫代码文件                                   |
+| weibo_check.py                | 爬取并验证微博数据的代码文件                                 |
+| table.py                      | 爬取新浪财经表格数据的爬虫文件                               |
+| table_check.py                | 爬取并验证新浪财经表格数据的代码文件                         |
+| weibo                         | 此文件夹中存储爬取的微博数据，子文件分别对应某个用户         |
+| weibo_log.txt                 | 此文件存储验证微博数据时产生的错误信息(不存在则因为无错误信息) |
+| stock                         | 此文件存储爬取的新浪财经上的数据                             |
+| stock/上市公司业绩公告.csv    | 存储爬取的新浪财经上上市公司业绩公告expected result          |
+| stock/融资融券数据.csv        | 存储爬取的新浪财经上融资融券数据expected result              |
+| stock/基金历史信息.csv        | 存储爬取的新浪财经上基金的历史信息 expected result           |
+| stock/上市公司业绩公告log.txt | 此文件存储验证新浪财经表格数据时产生的错误信息(不存在则因为无错误信息) |
+|                               |                                                              |
 
 ## 运行环境
 
@@ -49,52 +52,14 @@
 
 其中，微博id，微博正文，原始图片，被转发微博原始图片，是否为原创微博，发布位置，发布时间，发布工具为验证器验证的对象。
 
-### 新浪财经数据
+### 新浪财经基金数据
 
-爬取的基金：
+爬取的全部基金的名称和代码：
 
-| 序号 |                              [基金代码](javascript:void(0);) |                              [基金名称](javascript:void(0);) |
-| ---: | -----------------------------------------------------------: | -----------------------------------------------------------: |
-|    1 | [006210](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=006210&country=fund) | [东方臻宝纯债债券A](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=006210&country=fund) |
-|    2 | [006279](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=006279&country=fund) | [中金瑞祥混合A](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=006279&country=fund) |
-|    3 | [960033](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=960033&country=fund) | [农银汇理消费主题混合H](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=960033&country=fund) |
-|    4 | [150195](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=150195&country=fund) | [富国中证移动互联网指数分级B](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=150195&country=fund) |
-|    5 | [150230](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=150230&country=fund) | [鹏华酒分级B](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=150230&country=fund) |
-|    6 | [003793](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=003793&country=fund) | [泰达宏利溢利债券A](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=003793&country=fund) |
-|    7 | [006109](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=006109&country=fund) | [富荣价值精选混合A](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=006109&country=fund) |
-|    8 | [150174](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=150174&country=fund) | [信诚中证TMT产业主题指数分级B](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=150174&country=fund) |
-|    9 | [005911](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=005911&country=fund) | [广发双擎升级混合](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=005911&country=fund) |
-|   10 | [150199](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=150199&country=fund) | [国泰国证食品饮料行业指数分级B](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=150199&country=fund) |
-|   11 | [002939](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=002939&country=fund) | [广发创新升级混合](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=002939&country=fund) |
-|   12 | [150304](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=150304&country=fund) | [华安创业板50指数分级B](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=150304&country=fund) |
-|   13 | [003745](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=003745&country=fund) | [广发多元新兴股票](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=003745&country=fund) |
-|   14 | [502002](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=502002&country=fund) | [西部利得中证500等权重指数分级B](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=502002&country=fund) |
-|   15 | [320007](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=320007&country=fund) | [诺安成长混合](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=320007&country=fund) |
-|   16 | [519674](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=519674&country=fund) | [银河创新成长混合](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=519674&country=fund) |
-|   17 | [161810](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=161810&country=fund) | [银华内需精选混合(LOF)](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=161810&country=fund) |
-|   18 | [519727](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=519727&country=fund) | [交银成长30混合](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=519727&country=fund) |
-|   19 | [001071](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=001071&country=fund) | [华安媒体互联网混合](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=001071&country=fund) |
-|   20 | [162703](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=162703&country=fund) | [广发小盘成长混合(LOF)](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=162703&country=fund) |
-|   21 | [519778](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=519778&country=fund) | [交银经济新动力混合](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=519778&country=fund) |
-|   22 | [001410](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=001410&country=fund) | [信达澳银新能源产业股票](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=001410&country=fund) |
-|   23 | [050022](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=050022&country=fund) | [博时回报灵活配置混合](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=050022&country=fund) |
-|   24 | [502012](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=502012&country=fund) | [易方达证券公司分级B](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=502012&country=fund) |
-|   25 | [161903](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=161903&country=fund) | [万家行业优选混合(LOF)](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=161903&country=fund) |
-|   26 | [519773](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=519773&country=fund) | [交银数据产业灵活配置混合](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=519773&country=fund) |
-|   27 | [003962](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=003962&country=fund) | [易方达瑞程混合C](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=003962&country=fund) |
-|   28 | [257070](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=257070&country=fund) | [国联安优选行业混合](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=257070&country=fund) |
-|   29 | [000404](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=000404&country=fund) | [易方达新兴成长混合](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=000404&country=fund) |
-|   30 | [003961](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=003961&country=fund) | [易方达瑞程混合A](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=003961&country=fund) |
-|   31 | [519005](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=519005&country=fund) | [海富通股票混合](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=519005&country=fund) |
-|   32 | [150206](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=150206&country=fund) | [鹏华中证国防指数分级B](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=150206&country=fund) |
-|   33 | [003516](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=003516&country=fund) | [国泰融安多策略灵活配置混合](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=003516&country=fund) |
-|   34 | [050010](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=050010&country=fund) | [博时特许价值混合A](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=050010&country=fund) |
-|   35 | [001959](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=001959&country=fund) | [华商乐享互联混合](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=001959&country=fund) |
-|   36 | [502050](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=502050&country=fund) | [易方达上证50指数分级B](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=502050&country=fund) |
-|   37 | [003889](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=003889&country=fund) | [汇安丰泽混合A](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=003889&country=fund) |
-|   38 | [003890](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=003890&country=fund) | [汇安丰泽混合C](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=003890&country=fund) |
-|   39 | [460005](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=460005&country=fund) | [华泰柏瑞价值增长混合](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=460005&country=fund) |
-|   40 | [003956](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=003956&country=fund) | [南方现代教育股票](http://biz.finance.sina.com.cn/suggest/lookup_n.php?q=003956&country=fund) |
+http://vip.stock.finance.sina.com.cn/fund_center/index.html#jzkfall
+
+后通过网页上基金的链接爬取基金的历史信息：
+
 
 | 数据     | 说明                             |
 | -------- | -------------------------------- |
@@ -104,3 +69,60 @@
 | 基金代码 | 基金代码                         |
 | 基金名称 | 基金名称                         |
 |          |                                  |
+
+#### 验证：
+
+验证时没有发现问题
+
+### 新浪财经每日融资融券数据
+
+例如2019-12-12日，新浪财经的融资融券数据记录页：
+
+http://vip.stock.finance.sina.com.cn/q/go.php/vInvestConsult/kind/rzrq/index.phtml?tradedate=2019-12-12
+
+![1577898571806](C:\Users\xinxi\AppData\Roaming\Typora\typora-user-images\1577898571806.png)
+
+| 数据                | 说明                                 |
+| ------------------- | ------------------------------------ |
+| 日期                | 2011/06/01到2019/12/29期间的每日数据 |
+| 序号                | 某股票当日记录序号                   |
+| 股票代码            | 某日零时统计的累计净值信息           |
+| 股票名称            | 某股票的股票名称                     |
+| 融资-余额（元）     | 融资栏下的余额（元）                 |
+| 融资-买入额（元）   | 融资栏下的买入额（元）               |
+| 融资-偿还额（元）   | 融资栏下的偿还额（元）               |
+| 融券-余量金额（元） | 融券栏下的余量金额（元）             |
+| 融券余量（股）      | 融券栏下的余量（股）                 |
+| 融券-卖出股（股）   | 融券栏下的卖出股（股）               |
+| 融券-偿还量（股）   | 融券栏下的偿还量（股）               |
+| 融券-融券金额（元） | 融券栏下的融券金额（元）             |
+
+#### 验证：
+
+验证时没有发现问题
+
+### 新浪财经上市公司业绩公告
+
+如下链接，为某一季度上市公司的公告列表
+
+http://finance.sina.com.cn/realstock/income_statement/2016-03-31/issued_pdate_ac_10.html
+
+![1577898953970](C:\Users\xinxi\AppData\Roaming\Typora\typora-user-images\1577898953970.png)
+
+其中最后一栏为公告pdf下载链接，通过url可获得对应的文件元数据。
+
+表格包含的数据如下：
+
+| 股票代码          | 股票名称         | 披露日期          |
+| ----------------- | ---------------- | ----------------- |
+| 每股收益（元）    | 营业收入（万元） | 营业收入同比（%） |
+| 净利润（万元）    | 净利润同比（%）  | 每股净资产（元）  |
+| 净资产收益率（%） | 每股现金流（元） | 毛利率（%）       |
+| 分配方案          | 明细             | PDF报告           |
+| 文件大小          | 文件类型         | 文件最后修改时间  |
+
+
+
+### Reference
+
+[1]https://github.com/dataabc/weiboSpider
